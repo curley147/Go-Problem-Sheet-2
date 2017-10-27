@@ -7,29 +7,39 @@ import (
 	"math/rand"
 	"strconv"
 )
-//struct to hold message 
+//struct to hold message and users guess
 type Messagedata struct{
 	Message string
+	Guess int
 }
 
+//method to store guesses in array
+func storeGuess(guess int){
+	var guessedNums [20]int
+	for i, _ := range guessedNums {
+		guessedNums[i] = guess
+	}
+	//test to see output on console
+	//fmt.Printf("stored guess: %d", guess)
+}
 func guessHandler(w http.ResponseWriter, r *http.Request){
 	//variable for number to be guessed
-	var guessNum int
+	var target int
 	//Adapted from https://github.com/data-representation/go-cookies/blob/master/go-cookie.go
 	// Try to read the cookie.
 	var cookie, err = r.Cookie("target")
 	if err == nil {
 		// If we could read it, try to convert its value to an int.
 		cValInt, _ := strconv.Atoi(cookie.Value)
-		guessNum = cValInt
+		target = cValInt
 	} 
 	//if there's no cookie
-	guessNum = rand.Intn(20)
+	target = rand.Intn(20)
 	// Create a cookie instance and set the cookie.
 	// You can delete the Expires line (and the time import) to make a session cookie.
 	mycookie := &http.Cookie{
 		Name:    "target",
-		Value:   strconv.Itoa(guessNum),
+		Value:   strconv.Itoa(target),
 	}
 	http.SetCookie(w, mycookie)
 	
@@ -44,7 +54,14 @@ func guessHandler(w http.ResponseWriter, r *http.Request){
 	// 	cookie := http.Cookie{Name: "target", Value: randNumStr}
 	// 	http.SetCookie(w, &cookie)
 	// }
-	
+
+	//next two lines crashes server
+	//r.ParseForm()     
+	//guess:=Guessdata{Guess: r.Form["guessedNum"][0]}
+
+	//creates int guess and converts url string into it
+	guess, _ := strconv.Atoi(r.FormValue("guessedNum"))
+	storeGuess(guess)
 	//parsing tmpl file using template package
 	t, err1 := template.ParseFiles("template/guess.tmpl")
 	if err1 != nil {
@@ -52,7 +69,8 @@ func guessHandler(w http.ResponseWriter, r *http.Request){
 		fmt.Println("template retrieval failed:", err1)
 	}
 	//sending Messagedata struct with response(value inject into {{.Message}} in tmpl file)
-	t.Execute(w, Messagedata{Message: "Guess a number between 1 and 20"})
+	t.Execute(w, Messagedata{Message: "Guess a number between 1 and 20", Guess: guess})
+	
 }
 //main
 func main() {

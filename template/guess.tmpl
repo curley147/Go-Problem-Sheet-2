@@ -11,10 +11,11 @@
   </head>
   <body>
     <h2>{{.Message}}</h2>
-    <form action="/guess.hmtl" method="GET">
-      <input type="text" name="guess"><br>
+    <form action="/guess" method="GET">
+      <input type="text" name="guessedNum"><br>
       <input type="submit" value="Guess">
     </form>
+    <h5>You guessed: {{.Guess}}</h5>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
