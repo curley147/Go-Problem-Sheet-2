@@ -13,9 +13,14 @@
     <h2>{{.Message}}</h2>
     <form action="/guess" method="GET">
       <input type="text" name="guessedNum"><br>
-      <input type="submit" value="Guess">
+      <input type="submit" value="Guess" onclick="guessed()">
     </form>
     <h5>You guessed: {{.Guess}}</h5>
+    <script type="text/javascript">
+    function guessed() {
+      return window.alert({{.Wmessage}});
+    }
+    </script>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>

@@ -11,6 +11,7 @@ import (
 type Messagedata struct{
 	Message string
 	Guess int
+	Wmessage string
 }
 
 //method to store guesses in array
@@ -27,21 +28,24 @@ func guessHandler(w http.ResponseWriter, r *http.Request){
 	var target int
 	//Adapted from https://github.com/data-representation/go-cookies/blob/master/go-cookie.go
 	// Try to read the cookie.
-	var cookie, err = r.Cookie("target")
-	if err == nil {
-		// If we could read it, try to convert its value to an int.
+	var cookie, _ = r.Cookie("target")
+	//if cookie exists
+	if cookie != nil {
+		//convert cookie.Value to int and assign to target
 		cValInt, _ := strconv.Atoi(cookie.Value)
-		target = cValInt
-	} 
-	//if there's no cookie
-	target = rand.Intn(20)
-	// Create a cookie instance and set the cookie.
-	// You can delete the Expires line (and the time import) to make a session cookie.
-	mycookie := &http.Cookie{
-		Name:    "target",
-		Value:   strconv.Itoa(target),
+		target = cValInt 
+	} else {	// If we cannot read it, set cookie .
+		//generate random number
+		target = rand.Intn(20)
+		//assign cookie values
+		mycookie := &http.Cookie{
+			Name:    "target",
+			Value:   strconv.Itoa(target),
+		}
+		//set cookie
+		http.SetCookie(w, mycookie)
+		
 	}
-	http.SetCookie(w, mycookie)
 	
 	//first cookie attempt
 	// c, err1 := r.Cookie("target")
@@ -68,8 +72,18 @@ func guessHandler(w http.ResponseWriter, r *http.Request){
 		//error check
 		fmt.Println("template retrieval failed:", err1)
 	}
-	//sending Messagedata struct with response(value inject into {{.Message}} in tmpl file)
+	//sending Messagedata struct with response(value inject into {{.Message}} and {{.Guess}} in tmpl file)
 	t.Execute(w, Messagedata{Message: "Guess a number between 1 and 20", Guess: guess})
+	//checking if user guessed right
+	if guess==target{
+		t.Execute(w, Messagedata{Wmessage: "Congrats, you guessed right"})
+		target = rand.Intn(20)
+		targetString:= strconv.Itoa(target)
+		mycookie:=&http.Cookie{Name: "target", Value: targetString}
+		http.SetCookie(w, mycookie)
+	} else{
+		t.Execute(w, Messagedata{Wmessage: "Guess again"})
+	}
 	
 }
 //main
